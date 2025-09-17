@@ -1,16 +1,17 @@
-function checkRole(requiredRole) {
+function checkRole(role) {
   return (req, res, next) => {
-    const role = req.header("x-user-role"); // citim rolul din header-ul cererii
+    // citim rolul din header sau query
+    const userRole = req.headers["x-user-role"] || req.query.role;
 
-    if (!role) {
-      return res.status(401).json({ message: "No role header provided" });
+    if (!userRole) {
+      return res.status(401).json({ message: "No role provided" });
     }
 
-    if (role !== requiredRole) {
-      return res.status(403).json({ message: "Forbidden: insufficient role" });
+    if (userRole.toLowerCase() === role.toLowerCase()) {
+      next(); // trece mai departe
+    } else {
+      return res.status(403).json({ message: "Forbidden. Wrong role!" });
     }
-
-    next(); // dacă rolul e corect, mergem mai departe
   };
 }
 
